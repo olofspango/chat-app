@@ -8,6 +8,7 @@ const {addUser, removeUser, getUser, getUsersInRoom} = require('./utils/users')
 const app = express()
 const server = http.createServer(app)
 const io = socketio(server)
+const rooms = require('./utils/rooms')
 
 
 const port = process.env.PORT || 3000
@@ -17,9 +18,17 @@ const publicDirectoryPath = path.join(__dirname, '../public')
 app.use(express.static(publicDirectoryPath))
 
 io.on('connection', (socket) => {
-
+    socket.on('open_index', ({}, callback) => {
+        console.log("Listening.")
+        console.log(rooms.getRooms());
+        
+        callback(undefined, rooms.getRooms())
+    })
     
-    socket.on('join', ({username, room}, callback) => {
+    socket.on('join', ({username, room, existingroom}, callback) => {
+        if(existingroom && !room) {
+            room = existingroom
+        }
         const {error, user} = addUser({id:socket.id, username, room})
         
         if(error) {

@@ -1,3 +1,5 @@
+const rooms = require('./rooms')
+
 const users = []
 
 const addUser = ({id, username, room}) => {
@@ -27,21 +29,22 @@ const addUser = ({id, username, room}) => {
     // Store user
     const user = {id, username, room}
     users.push(user)
+    rooms.addRoom(room)
     return {user}
 }
-
-const res = addUser({
-    id:23,
-    username:"Ny olof",
-    room:"My Room"
-})
 
 const removeUser = (id) => {
     const index = users.findIndex((user) => {
         return user.id === id
     })
     if(index !== -1) {
-        return users.splice(index, 1)[0]
+        const removedUser = users.splice(index, 1)[0]
+        console.log(getUsersInRoom(removedUser.room))
+        if(!getUsersInRoom(removedUser.room)[0]) {
+            rooms.removeRoom(removedUser.room)
+            console.log("Removing Room " + removedUser.room)
+        }
+        return removedUser
     }
 }
 const getUser = (id) => {
